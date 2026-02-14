@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【我不是戏神】角色档案 - 纪念站</title>
+    <style>
+        :root {
+            --red-primary: #8a0000; 
+            --red-bright: #ff1a1a;
+            --dark-bg: #0a0a0a;
+            --text-main: #e0e0e0;
+            --font-serif: 'Songti SC', 'SimSun', serif; 
+            --font-sans: 'Helvetica Neue', sans-serif;
+            --easing-snap: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 900;
+            opacity: 0.07;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+
+        section {
+            padding: 5vh 5vw;
+            position: relative;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-serif);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .dramatic-title {
+            font-size: 4rem;
+            color: var(--text-main);
+            mix-blend-mode: exclusion;
+            position: relative;
+            margin-bottom: 3rem;
+            margin-left: max(5vw, 20px);
+            text-shadow: 2px 2px 0px var(--red-primary);
+        }
+
+        .dramatic-title::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            left: -20px;
+            width: 120%;
+            height: 15px;
+            background: var(--red-primary);
+            z-index: -1;
+            transform: skewX(-20deg);
+        }
+
+        /* ----- 角色卡片样式 ----- */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 20px 0;
+        }
+
+        .character-card {
+            background: #141414;
+            border-left: 4px solid var(--red-primary);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s var(--easing-snap), background 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .character-card:hover {
+            transform: translateY(-10px);
+            background: #1c0000;
+            border-left-color: var(--red-bright);
+        }
+
+        .character-img-container {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .character-img-real {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(120%);
+            transition: filter 0.5s var(--easing-snap);
+        }
+
+        .character-card:hover .character-img-real {
+            filter: grayscale(0%) sepia(20%) saturate(200%) hue-rotate(-20deg);
+        }
+
+        .character-img-placeholder {
+            color: #666;
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .character-info {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .character-header {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+        }
+
+        .character-name {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            color: var(--text-main);
+            margin: 0 0 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .character-alias {
+            color: var(--red-bright);
+            font-size: 0.9rem;
+            font-family: var(--font-sans);
+            letter-spacing: 2px;
+        }
+
+        .character-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .meta-tag {
+            background: rgba(138, 0, 0, 0.3);
+            color: var(--text-main);
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            border: 1px solid var(--red-primary);
+            font-family: var(--font-sans);
+        }
+
+        .character-desc {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 15px;
+            flex: 1;
+        }
+
+        .character-abilities {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-left: 2px solid var(--red-primary);
+            margin-top: auto;
+        }
+
+        .ability-title {
+            color: var(--red-bright);
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            font-family: var(--font-serif);
+            letter-spacing: 2px;
+        }
+
+        .ability-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .ability-list li {
+            padding: 3px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .ability-list li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: var(--red-primary);
+        }
+
+        .external-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--red-bright);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+            align-self: flex-start;
+        }
+
+        .external-link:hover {
+            border-bottom-color: var(--red-bright);
+        }
+
+        /* ----- 分类标题 ----- */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--red-primary), transparent);
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .section-divider::before {
+            content: '◆';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--red-primary);
+            background: var(--dark-bg);
+            padding: 0 20px;
+            font-size: 0.8rem;
+        }
+
+        /* ----- 查看更多卡片 ----- */
+        .view-more-card {
+            background: linear-gradient(135deg, #1a0000, #0a0a0a);
+            border: 2px solid var(--red-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-main);
+            cursor: pointer;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-more-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--red-primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1;
+        }
+
+        .view-more-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--red-bright);
+            box-shadow: 0 10px 30px rgba(138, 0, 0, 0.3);
+        }
+
+        .view-more-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .view-more-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .view-more-title {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .view-more-subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .view-more-arrow {
+            font-size: 3rem;
+            color: var(--red-bright);
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+
+        .view-more-card:hover .view-more-arrow {
+            transform: translateX(10px);
+        }
+
+        .footer {
+            padding: 50px 20px;
+            text-align: center;
+            background: #000;
+            border-top: 1px solid #222;
+        }
+
+        @media (max-width: 768px) {
+            .dramatic-title {
+                font-size: 2.5rem;
+            }
+            .character-grid {
+                grid-template-columns: 1fr;
+            }
+            .character-img-container {
+                height: 300px;
+            }
+        }
+    </style>
+    <base target="_blank">
+<base target="_blank">
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+
+    <header>
+        <div style="padding: 20px; font-family:var(--font-serif); font-size: 12px; color: #666;">
+            THEATRE OF <br> THREE-NINE AUDIO DOMAIN
+        </div>
+    </header>
+
+    <section id="main-characters">
+        <h2 class="dramatic-title">主要角色 <span style="font-size:1rem; opacity:0.5; margin-left:10px;">/// Main Characters</span></h2>
+        
+        <div class="character-grid">
+            <!-- 陈伶 -->
+            <div class="character-card">
+                <div class="character-img-container">
+                    <img src="https://cdn.jsdelivr.net/gh/hmq151/I-m-Not-a-Theatre-God-Tribute@main/picture/e0b607debafd88d2c941f1c552f94cdc3691005322726067.jpg" alt="陈伶" class="character-img-real" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="character-img-placeholder" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">
+                        <div>
+                            <div style="font-size: 3rem; color: var(--red-primary); margin-bottom: 10px;">伶</div>
+                            <div>陈伶角色图片</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="character-info">
+                    <div class="character-header">
+                        <h3 class="character-name">陈伶 <span style="font-size: 1rem; color: #666; font-family: var(--font-sans);">Chen Ling</span></h3>
+                        <div class="character-alias">"红心6" / "嘲灾" / "第六代红王"</div>
+                        <div class="character-meta">
+                            <span class="meta-tag">黄昏社</span>
+                            <span class="meta-tag">戏神道八阶</span>
+                            <span class="meta-tag">主角</span>
+                        </div>
+                    </div>
+                    <div class="character-desc">
+                        三九音域《我不是戏神》主角，实为灭世灾厄之王——嘲灾的众多意识之一。身披大红戏袍，时笑时哭，屹立于文明废墟之上。拥有被弟弟陈宴扭曲的戏神道，踏上了一条未知的道路。
+                    </div>
+                    <div class="character-abilities">
+                        <div class="ability-title">核心能力 // 扭曲戏神道</div>
+                        <ul class="ability-list">
+                            <li>第一阶【无相】：无形无相，相由心生</li>
+                            <li>第二阶【猩红戏法】：假作真时真亦假</li>
+                            <li>第三阶【织命】：编织命运，提前写剧本</li>
+                            <li>第四阶【卡】：定格、审视、篡改既定剧情</li>
+                            <li>第五阶【灾厄化】：掌控嘲灾力量，化身红纸</li>
+                        </ul>
+                    </div>
+                    <a href="https://baike.baidu.com/item/%E9%99%88%E4%BC%B6/65194507" class="external-link">查看完整档案 →</a>
+                </div>
+            </div>
+
+            <!-- 简长生 -->
+            <div class="character-card">
+                <div class="character-img-container">
+                    <img src="https://cdn.jsdelivr.net/gh/hmq151/I-m-Not-a-Theatre-God-Tribute@main/picture/a730c2d279f0f4dd00ba992c5d8255293493114874431947.jpg" alt="简长生" class="character-img-real" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="character-img-placeholder" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">
+                        <div>
+                            <div style="font-size: 3rem; color: var(--red-primary); margin-bottom: 10px;">简</div>
+                            <div>简长生角色图片</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="character-info">
+                    <div class="character-header">
+                        <h3 class="character-name">简长生 <span style="font-size: 1rem; color: #666; font-family: var(--font-sans);">Jian Changsheng</span></h3>
+                        <div class="character-alias">"黑桃6" / "简无病"</div>
+                        <div class="character-meta">
+                            <span class="meta-tag">黄昏社</span>
+                            <span class="meta-tag">兵神道修罗路径</span>
+                            <span class="meta-tag">八阶</span>
+                        </div>
+                    </div>
+                    <div class="character-desc">
+                        兵神道【修罗】路径的天才，极光城群星商会阎家家仆之子。曾被陈伶杀死在兵道古藏，后死里逃生加入黄昏社。性格大大咧咧却心思细腻，嘴硬心软，是陈伶从仇人变为最重要的兄弟与家人。
+                    </div>
+                    <div class="character-abilities">
+                        <div class="ability-title">核心能力 // 兵神道修罗路径</div>
+                        <ul class="ability-list">
+                            <li>第一阶【血衣】：伤越重战斗力越强，愈合速度惊人</li>
+                            <li>第二阶【滴血陀】：瞬移至血珠当前位置</li>
+                            <li>特殊能力：空间定位追踪（GPS路径）</li>
+                            <li>拥有白起杀气，可发挥恐怖战力</li>
+                        </ul>
+                    </div>
+                    <a href="https://baike.baidu.com/item/%E7%AE%80%E9%95%BF%E7%94%9F/65264639" class="external-link">查看完整档案 →</a>
+                </div>
+            </div>
+
+            <!-- 陈宴 -->
+            <div class="character-card">
+                <div class="character-img-container">
+                    <img src="https://cdn.jsdelivr.net/gh/hmq151/I-m-Not-a-Theatre-God-Tribute@main/picture/3c92e52d78c0b44ebd0ac0cbe2a24f743493114874431947.png" alt="陈宴" class="character-img-real" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="character-img-placeholder" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">
+                        <div>
+                            <div style="font-size: 3rem; color: var(--red-primary); margin-bottom: 10px;">宴</div>
+                            <div>陈宴角色图片</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="character-info">
+                    <div class="character-header">
+                        <h3 class="character-name">陈宴 <span style="font-size: 1rem; color: #666; font-family: var(--font-sans);">Chen Yan</span></h3>
+                        <div class="character-alias">"第五代红王" / "嘲灾载体"</div>
+                        <div class="character-meta">
+                            <span class="meta-tag">陈伶之弟</span>
+                            <span class="meta-tag">戏神道</span>
+                            <span class="meta-tag">关键人物</span>
+                        </div>
+                    </div>
+                    <div class="character-desc">
+                        陈伶的弟弟，在赤色流星引发的末日背景下，通过师父的仪式与陈伶互换身份，成为承载嘲灾的特殊存在。以三十六块朱砂琉璃碎片为陈伶重连被神道背弃的戏神道，自身化为神道基石。
+                    </div>
+                    <div class="character-abilities">
+                        <div class="ability-title">核心能力 // 戏道天赋</div>
+                        <ul class="ability-list">
+                            <li>戏神道连接引导：为陈伶续上扭曲戏神道</li>
+                            <li>身份置换：作为领域核心媒介实现身份互换</li>
+                            <li>灾厄力量稳定载体：承载并稳定嘲灾力量</li>
+                            <li>绘朱颜：第一个为陈伶抹上戏妆的人</li>
+                        </ul>
+                    </div>
+                    <a href="https://baike.baidu.com/item/%E9%99%88%E5%AE%B4/65254914" class="external-link">查看完整档案 →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section id="supporting-characters">
+        <h2 class="dramatic-title">戏道古藏 <span style="font-size:1rem; opacity:0.5; margin-left:10px;">/// Theatre Ancient Vault</span></h2>
+        
+        <div class="character-grid">
+            <!-- 宁如玉 -->
+            <div class="character-card">
+                <div class="character-img-container">
+                    <img src="https://img95.699pic.com/element/40156/0362.png_300.png" alt="宁如玉" class="character-img-real" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="character-img-placeholder" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">
+                        <div>
+                            <div style="font-size: 3rem; color: var(--red-primary); margin-bottom: 10px;">玉</div>
+                            <div>宁如玉角色图片</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="character-info">
+                    <div class="character-header">
+                        <h3 class="character-name">宁如玉 <span style="font-size: 1rem; color: #666; font-family: var(--font-sans);">Ning Ruyu</span></h3>
+                        <div class="character-alias">"黑桃K" / "大师兄"</div>
+                        <div class="character-meta">
+                            <span class="meta-tag">黄昏社高层</span>
+                            <span class="meta-tag">戏神道八阶</span>
+                            <span class="meta-tag">生角</span>
+                        </div>
+                    </div>
+                    <div class="character-desc">
+                        陈伶的大师兄，戏神道八阶强者，世间能够唱响安魂曲的五人之一。性格沉稳坚韧，在师门中具有重要地位，是故事核心戏剧冲突的关键支撑人物。
+                    </div>
+                    <div class="character-abilities">
+                        <div class="ability-title">核心能力 // 戏神道生角</div>
+                        <ul class="ability-list">
+                            <li>安魂曲：全球仅限五人可施展的稀有技能</li>
+                            <li>戏神道八阶修为：深不可测的实力</li>
+                            <li>生角表演：与行当高度契合的表演风格</li>
+                        </ul>
+                    </div>
+                    <a href="https://baike.baidu.com/item/%E5%AE%81%E5%A6%82%E7%8E%89/65281274" class="external-link">查看完整档案 →</a>
+                </div>
+            </div>
+
+            <!-- 末角 -->
+            <div class="character-card">
+                <div class="character-img-container">
+                    <img src="[末角图片链接]" alt="末角" class="character-img-real" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="character-img-placeholder" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">
+                        <div>
+                            <div style="font-size: 3rem; color: var(--red-primary); margin-bottom: 10px;">末</div>
+                            <div>末角角色图片</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="character-info">
+                    <div class="character-header">
+                        <h3 class="character-name">末角 <span style="font-size: 1rem; color: #666; font-family: var(--font-sans);">Mo Jue</span></h3>
+                        <div class="character-alias">"梅花K"</div>
+                        <div class="character-meta">
+                            <span class="meta-tag">黄昏社高层</span>
+                            <span class="meta-tag">戏神道八阶</span>
+                            <span class="meta-tag">安魂曲演唱者</span>
+                        </div>
+                    </div>
+                    <div class="character-desc">
+                        黄昏社高层，梅花K，戏神道八阶强者。同样具备罕见的安魂曲发动能力，该能力被限定为全球仅五人可施展。在黄昏社中拥有极高辈分，是陈伶的重要前辈。
+                    </div>
+                    <div class="character-abilities">
+                        <div class="ability-title">核心能力 // 戏神道</div>
+                        <ul class="ability-list">
+                            <li>安魂曲：全球仅限五人可施展</li>
+                            <li>戏神道八阶：顶尖修为</li>
+                            <li>黄昏社梅花K：高层权限地位</li>
+                        </ul>
+                    </div>
+                    <a href="https://baike.baidu.com/item/%E6%9C%AB%E8%A7%92/65294898" class="external-link">查看完整档案 →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section id="other-characters">
+        <h2 class="dramatic-title">其他重要角色 <span style="font-size:1rem; opacity:0.5; margin-left:10px;">/// Supporting Cast</span></h2>
+        
+        <div class="character-grid">
+            <!-- 文仕林 -->
+            <div class="character-card">
+                <div class="character-img-container">
+                    <img src="https://cdn.jsdelivr.net/gh/hmq151/I-m-Not-a-Theatre-God-Tribute@main/picture/%E3%80%8C%E6%96%87%E4%BB%95%E6%9E%97%E3%80%8D%E6%9C%80%E5%90%8E%E7%9A%84%E7%AF%87%E7%AB%A0-20260214103023-20260214103025.jpg" alt="文仕林" class="character-img-real" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="character-img-placeholder" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">
+                        <div>
+                            <div style="font-size: 3rem; color: var(--red-primary); margin-bottom: 10px;">文</div>
+                            <div>文仕林角色图片</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="character-info">
+                    <div class="character-header">
+                        <h3 class="character-name">文仕林 <span style="font-size: 1rem; color: #666; font-family: var(--font-sans);">Wen Shilin</span></h3>
+                        <div class="character-alias">"极光城记者"</div>
+                        <div class="character-meta">
+                            <span class="meta-tag">极光城</span>
+                            <span class="meta-tag">记者</span>
+                            <span class="meta-tag">普通人</span>
+                        </div>
+                    </div>
+                    <div class="character-desc">
+                        极光城内的普通记者，始终秉持揭露黑暗、追求真相的信念。在故事高潮中选择将生存机会让给他人，展现了在末日背景下普通人的人性光辉，是作品中极具人气的角色。
+                    </div>
+                    <div class="character-abilities">
+                        <div class="ability-title">角色特质</div>
+                        <ul class="ability-list">
+                            <li>新闻理想：坚持揭露真相的信念</li>
+                            <li>牺牲精神：在危机时刻选择让他人存活</li>
+                            <li>人性光辉：代表末日中不屈的普通人</li>
+                        </ul>
+                    </div>
+                    <a href="https://baike.baidu.com/item/%E6%96%87%E4%BB%95%E6%9E%97/65303970" class="external-link">查看完整档案 →</a>
+                </div>
+            </div>
+
+            <!-- 柳轻烟 -->
+            <div class="character-card">
+                <div class="character-img-container">
+                    <img src="https://cdn.jsdelivr.net/gh/hmq151/I-m-Not-a-Theatre-God-Tribute@main/picture/%E6%9F%B3%E8%BD%BB%E7%83%9F.jpg" alt="柳轻烟" class="character-img-real" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="character-img-placeholder" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center;">
+                        <div>
+                            <div style="font-size: 3rem; color: var(--red-primary); margin-bottom: 10px;">柳</div>
+                            <div>柳轻烟角色图片</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="character-info">
+                    <div class="character-header">
+                        <h3 class="character-name">柳轻烟 <span style="font-size: 1rem; color: #666; font-family: var(--font-sans);">Liu Qingyan</span></h3>
+                        <div class="character-alias">"灰王"</div>
+                        <div class="character-meta">
+                            <span class="meta-tag">黄昏社</span>
+                            <span class="meta-tag">娼神道二阶</span>
+                            <span class="meta-tag">刺客路径</span>
+                        </div>
+                    </div>
+                    <div class="character-desc">
+                        黄昏社灰王，娼神道二阶修行者，刺客路径。在灰王建议下拜入其门下并前往娼道古藏。作为黄昏社成员，在末日世界中追寻自己的道路，与陈伶存在领导与下属的关系。
+                    </div>
+                    <div class="character-abilities">
+                        <div class="ability-title">核心能力 // 娼神道刺客路径</div>
+                        <ul class="ability-list">
+                            <li>娼神道刺客路径：二阶修为</li>
+                            <li>黄昏社灰王：高层身份</li>
+                            <li>师承朱玉：第五代灰王之徒</li>
+                        </ul>
+                    </div>
+                    <a href="https://baike.baidu.com/item/%E6%9F%B3%E8%BD%BB%E7%83%9F/65254930" class="external-link">查看完整档案 →</a>
+                </div>
+            </div>
+
+            <!-- 查看更多 -->
+            <a href="https://baike.baidu.com/item/%E6%88%91%E4%B8%8D%E6%98%AF%E6%88%8F%E7%A5%9E/63558730" class="character-card view-more-card">
+                <div class="view-more-content">
+                    <span class="view-more-title">查看全部角色</span>
+                    <span class="view-more-subtitle">访问百度百科《我不是戏神》词条<br>了解更多角色详情</span>
+                    <div class="view-more-arrow">›</div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section style="background: #0f0f0f; margin-top: 50px; border-top: 1px solid #222;">
+        <div style="max-width: 800px; margin: 0 auto; text-align: center; padding: 40px 20px;">
+            <h3 style="font-family: var(--font-serif); color: var(--red-primary); margin-bottom: 20px; font-size: 1.5rem;">世界观补充</h3>
+            <p style="color: #666; line-height: 1.8; font-size: 0.9rem;">
+                2024年8月8日，赤色流星划过天际，人类文明陷入停滞。从那天起，人们再也无法制造火箭、核弹、飞机、汽车……近代科学堆砌而成的文明金字塔轰然坍塌，灰色的世界随着赤色流星降临。在这个时代，人命渺如尘埃；在这个时代，人类灿若星辰。大厦将倾，有人见一戏子屹立文明废墟之上，红帔似血，时笑时哭，时代的帘幕缓缓打开——"好戏……开场。"
+            </p>
+            <div style="margin-top: 30px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <a href="https://baike.baidu.com/item/%E6%88%91%E4%B8%8D%E6%98%AF%E6%88%8F%E7%A5%9E/63558730" style="color: var(--red-bright); text-decoration: none; border: 1px solid var(--red-primary); padding: 10px 20px; font-size: 0.85rem; transition: all 0.3s;">百度百科主词条</a>
+                <a href="https://fanqienovel.com/page/63558730" style="color: var(--red-bright); text-decoration: none; border: 1px solid var(--red-primary); padding: 10px 20px; font-size: 0.85rem; transition: all 0.3s;">番茄小说正版</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <h3 style="font-size: 0.8rem; margin-bottom: 20px; color: #444;">TECHNOLOGY SUPPORT</h3>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap;">
+            <a href="https://space.bilibili.com/1436006382" target="_blank" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; transition: transform 0.3s;">
+                <img src="https://cdn.jsdelivr.net/gh/hmq151/I-m-Not-a-Theatre-God-Tribute@main/picture/%E4%B8%89%E4%B9%9D.avif" alt="三九音域" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--red-primary); margin-bottom: 8px;">
+                <span style="font-size: 12px; color: #666; font-family: var(--font-sans);">三九音域</span>
+            </a>
+
+            <img src="https://r2.xsimple-r2.com/files/491630/4774a1cf-2285-48e0-9d63-07c27708f57f.png" alt="迅星科技 XKUNXING KEJI" style="max-width: 200px; filter: grayscale(100%); transition: filter 0.3s; mix-blend-mode: screen;">
+
+            <a href="https://space.bilibili.com/3546858737633481" target="_blank" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; transition: transform 0.3s;">
+                <img src="https://cdn.jsdelivr.net/gh/hmq151/I-m-Not-a-Theatre-God-Tribute@main/picture/1.avif" alt="迅星工作室" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--red-primary); margin-bottom: 8px;">
+                <span style="font-size: 12px; color: #666; font-family: var(--font-sans);">迅星工作室</span>
+            </a>
+        </div>
+        <br><br>
+        <p style="font-size: 10px; color: #333; font-family: var(--font-sans);">
+            DEVELOPED BY Xunxing Technology Studio | FAN MEMORIAL SITE | NOT AFFILIATED WITH THREE-NINE
+        </p>
+    </footer>
+
+    <script>
+        // 添加滚动动画效果
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.character-card').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = `opacity 0.6s ${index * 0.1}s ease, transform 0.6s ${index * 0.1}s ease`;
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
